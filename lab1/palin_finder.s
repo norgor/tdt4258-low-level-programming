@@ -1,22 +1,14 @@
 .global _start
 
-
-// Please keep the _start method and the input strings name ("input") as
-// specified below
-// For the rest, you are free to add and remove functions as you like,
-// just make sure your code is clear, concise and well documented.
-
 _start:
 	// Load input and call is_palindrome
-	ldr r0, =input
-	bl is_palindrome
-	// Check return value and notify that it was, or was not, a palindrome
-	teq r0, #0
-	bleq palindrome_not_ok
-	blne palindrome_ok
+	ldr r0, =input // Set r0 to pointer to input string.
+	bl is_palindrome // Check if is palindrome.
+	teq r0, #0 // Is false?
+	bleq palindrome_not_ok // Yes => Notify IS NOT a palindrome.
+	blne palindrome_ok // No => Notify IS a palindrome.
 	
-	// Jump to exit
-	b _exit
+	b _exit	// Jump to exit
 
 // Returns the string length (in r0) of the text pointed to by r0.
 strlen:
@@ -35,13 +27,12 @@ strlen_ret:
 	
 // Makes the character in r0 lowercase.
 to_upper:
-	// Return if r0 <= 'a'
-	cmp r0, #0x61
-	blt to_upper_ret // Jump out if r0 <= 'a'
+	cmp r0, #0x61 // Compare char to 'a'
+	blt to_upper_ret // Return if char <= 'a'.
 	// Return if r0 >= 'z'
-	cmp r0, #0x7A // Compare to 'z' 
-	bgt to_upper_ret // Jump out if r0 >= 'z'
-	// Make r0 uppercase
+	cmp r0, #0x7A // Compare char to 'z' 
+	bgt to_upper_ret // Return if char >= 'z'
+	
 	sub r0, #0x20 // Make the character uppercase.
 to_upper_ret:
 	mov pc, lr // Return to caller
@@ -49,7 +40,7 @@ to_upper_ret:
 // Compares the characters in register r0 and r1 case insensitively.
 // r0 = 0 if chars were equal, else, r0 != 0.
 cmpchar_nocase:
-	push {lr} // Save lr
+	push {lr} // Save lr, as we perform calls inside this function.
 	// Make r0 lowercase
 	bl to_upper
 	// Make r1 lowercase
@@ -61,8 +52,7 @@ cmpchar_nocase:
 	// Compare
 	sub r0, r1
 	// Return
-	pop {lr} // Pop lr
-	mov pc, lr // Return to caller
+	pop {pc} // Return to caller
 	
 	
 // Checks if the string in r0 is a palindrome.
@@ -74,94 +64,93 @@ is_palindrome:
 	bl strlen // Get length of string
 	// Set up pointers: r4=start, r5=end
 	add r5, r4, r0 // Set end pointer to string pointer + strlen
-	sub r4, #1 // Point before start of buffer, as we add in loop.
+	sub r4, #1 // Point before start of buffer, as we add in loop
 is_palindrome_loop:
-	// Compare pointer positions (end - start) <= 0 means palindrome, else we must continue.
-	sub r0, r5, r4
-	cmp r0, #0
-	ble is_palindrome_true // Return true! :)
+	// Bounds check
+	// Compare pointer positions (end - start) <= 0 means palindrome, else we must continue
+	sub r0, r5, r4 // delta = end - start
+	cmp r0, #0  // compare delta to 0
+	ble is_palindrome_true // delta is <= 0 (palindrome). return true!
 	// Read chars into r0 and r1
 read_start:
-	add r4, #1
-	ldrb r0, [r4]
-	// Read next char if space
-	teq r0, #0x20
-	beq read_start
+	add r4, #1 // Offset start by 1
+	ldrb r0, [r4] // Read start character
+	teq r0, #0x20 // Is character space?
+	beq read_start // Jump back and read another start character if it was a space
 read_end:
-	sub r5, #1
-	ldrb r1, [r5]
-	// Read next char if space
-	teq r1, #0x20
-	beq read_end
+	sub r5, #1 // Offset end by -1
+	ldrb r1, [r5] // Read end character
+	teq r1, #0x20 // Is character space?
+	beq read_end // Jump back and read another end chacter if it was a space
 	
-	// Are the chars equal?
-	bl cmpchar_nocase
-	teq r0, #0
-	bne is_palindrome_false // Return false.
-	b is_palindrome_loop
+	// Compare start and end
+	bl cmpchar_nocase // Compare the start and end character
+	teq r0, #0 // Compare return value to 0
+	bne is_palindrome_false // Return false if characters inequal (return value != 0)
+	b is_palindrome_loop // Perform another loop iteration.
 is_palindrome_true:
-	mov r0, #1
-	b is_palindrome_ret
+	mov r0, #1 // Set return value to 1.
+	b is_palindrome_ret // Jump to return
 is_palindrome_false:
-	mov r0, #0
+	mov r0, #0 // Set return value to 0.
 is_palindrome_ret:
-	pop {r4, r5, lr} // Restore registers
-	mov pc, lr // Return to caller
+	pop {r4, r5, pc} // Restore registers
 
 // Prints the string pointed to by r0 into the JTAG UART port.
 print:
-	ldr r2, =#JTAG
+	ldr r2, =#JTAG // Set r2 to the JTAG base address.
 	ldrb r1, [r0] // Read character
-	teq r1, #0 // Return if NUL
-	moveq pc, lr
+	teq r1, #0 // Compare character to NUL.
+	moveq pc, lr // Return if character was NUL.
 	// Write char to UART
-	strb r1, [r2]
-	add r0, #1
-	b print
+	strb r1, [r2] // Write character into JTAG UART address.
+	add r0, #1 // Increment string pointer by one.
+	b print // Loop again.
 	
 // Notifies that the palindrome was OK.
 palindrome_ok:
-	push {lr}
+	push {lr} // Store lr, as we perform function calls
 	
 	// Switch on only the 5 leftmost LEDs
-	ldr r0, =#LEDR
-	mov r1, #0b1111100000
-	str r1, [r0]
-	// Write 'Palindrom detected' to UART
-	ldr r0, =palindrome
-	bl print
+	ldr r0, =#LEDR // Store LEDR base address into r0
+	mov r1, #0b1111100000 // Set the 5 leftmost LED bits
+	str r1, [r0] // Write LED bits into LED peripheral register
 	
-	pop {lr}
-	mov pc, lr
+	// Write 'Palindrom detected' to UART
+	ldr r0, =palindrome // Set r0 to pointer to palindrome string
+	bl print // Call print
+	
+	pop {pc} // Return to caller
 
 // Notifies that palindrome was NOT OK.
 palindrome_not_ok:
 	push {lr}
 	
 	// Switch on only the 5 rightmost LEDs
-	ldr r0, =#LEDR
-	mov r1, #0b11111
-	str r1, [r0]
-	// Write 'Not a palindrom' to UART
-	ldr r0, =notPalindrome
-	bl print
+	ldr r0, =#LEDR // Store LEDR base address into r0
+	mov r1, #0b11111 // Set the 5 rightmost LED bits
+	str r1, [r0]// Write LED bits into LED peripheral register
 	
-	pop {lr}
-	mov pc, lr
+	// Write 'Not a palindrom' to UART
+	ldr r0, =notPalindrome // Set r0 to pointer to not a palindrome string
+	bl print // Call print
+	
+	pop {pc} // Return to caller
 	
 _exit:
 	// Branch here for exit
 	b .
 
-.equ LEDR, 0xFF200000
-.equ JTAG, 0xFF201000
+.equ LEDR, 0xFF200000 // LEDR base address.
+.equ JTAG, 0xFF201000 // JTAG base address.
 
 .data
 .align
 	// This is the input you are supposed to check for a palindrom
 	// You can modify the string during development, however you
 	// are not allowed to change the name 'input'!
-	input: .asciz "pa lin dromeemordnilapx"
+	input: .asciz "levelx"
+	
 	palindrome: .asciz "Palindrome detected"
 	notPalindrome: .asciz "Not a palindrome"
 .end
