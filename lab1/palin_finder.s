@@ -125,7 +125,7 @@ palindrome_ok:
 	
 	// Switch on only the 5 leftmost LEDs
 	ldr r0, =#LEDR
-	mov r1, #0b11111
+	mov r1, #0b1111100000
 	str r1, [r0]
 	// Write 'Palindrom detected' to UART
 	ldr r0, =palindrome
@@ -140,7 +140,7 @@ palindrome_not_ok:
 	
 	// Switch on only the 5 rightmost LEDs
 	ldr r0, =#LEDR
-	mov r1, #0b0000011111
+	mov r1, #0b11111
 	str r1, [r0]
 	// Write 'Not a palindrom' to UART
 	ldr r0, =notPalindrome
@@ -161,7 +161,7 @@ _exit:
 	// This is the input you are supposed to check for a palindrom
 	// You can modify the string during development, however you
 	// are not allowed to change the name 'input'!
-	input: .asciz "KayAk"
+	input: .asciz "pa lin dromeemordnilapx"
 	palindrome: .asciz "Palindrome detected"
 	notPalindrome: .asciz "Not a palindrome"
 .end
