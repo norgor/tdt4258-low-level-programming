@@ -123,6 +123,9 @@ ICache Hit Rate: -nan
 
 #> ./cache_sim 4096 fa uc --file d0hit.txt 
 
+:q
+:q
+
 Cache Organization
 ------------------
 Size:           4096 bytes
