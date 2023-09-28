@@ -1,0 +1,120 @@
+
+// Sample outputs from the testcases:
+#>./cache_sim 128 fa uc --file m100hit.txt
+
+Cache Organization
+------------------
+Size:           128 bytes
+Mapping:        fully associative
+Organization:   unified cache
+Policy:         FIFO
+Block Size:     64 bytes
+Number of Sets: 1
+Number of Ways: 2
+Block Offset:   6 bits
+Index:          0 bits
+Tag:            26 bits
+------------------
+
+Cache Statistics
+-----------------
+Accesses: 10
+Hits:     8
+Evicts:   0
+Hit Rate: 0.8000
+-----------------
+
+
+#> ./cache_sim 128 fa sc --file m100hit.txt 
+
+Cache Organization
+------------------
+Size:           64/64 bytes
+Mapping:        fully associative
+Organization:   split cache
+Policy:         FIFO
+Block Size:     64 bytes
+Number of Sets: 1
+Number of Ways: 1
+Block Offset:   6 bits
+Index:          0 bits
+Tag:            26 bits
+------------------
+
+Cache Statistics
+-----------------
+Accesses: 10
+Hits:     8
+Evicts:   0
+Hit Rate: 0.8000
+
+DCache Accesses: 5
+DCache Hits:     4
+DCache Evicts:   0
+DCache Hit Rate: 0.8000
+
+ICache Accesses: 5
+ICache Hits:     4
+ICache Evicts:   0
+ICache Hit Rate: 0.8000
+-----------------
+
+
+#> ./cache_sim 128 dm sc --file m100hit.txt 
+
+Cache Organization
+------------------
+Size:           64/64 bytes
+Mapping:        direct mapped
+Organization:   split cache
+Policy:         FIFO
+Block Size:     64 bytes
+Number of Sets: 1
+Number of Ways: 1
+Block Offset:   6 bits
+Index:          0 bits
+Tag:            26 bits
+------------------
+
+Cache Statistics
+-----------------
+Accesses: 10
+Hits:     8
+Evicts:   0
+Hit Rate: 0.8000
+
+DCache Accesses: 5
+DCache Hits:     4
+DCache Evicts:   0
+DCache Hit Rate: 0.8000
+
+ICache Accesses: 5
+ICache Hits:     4
+ICache Evicts:   0
+ICache Hit Rate: 0.8000
+-----------------
+
+
+#> ./cache_sim 128 dm uc --file m100hit.txt 
+
+Cache Organization
+------------------
+Size:           128 bytes
+Mapping:        direct mapped
+Organization:   unified cache
+Policy:         FIFO
+Block Size:     64 bytes
+Number of Sets: 2
+Number of Ways: 1
+Block Offset:   6 bits
+Index:          1 bits
+Tag:            25 bits
+------------------
+
+Cache Statistics
+-----------------
+Accesses: 10
+Hits:     0
+Evicts:   9
+Hit Rate: 0.0000
+-----------------
