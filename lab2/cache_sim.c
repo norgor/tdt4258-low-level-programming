@@ -181,6 +181,7 @@ void cache_access_fa(cache_t *cache, mem_access_t access, cacheline_t *lines,
 			}
 		}
 
+		// Update the line.
 		evict->fa_valid = true;
 		evict->fa_place_time = cache->fa_time;
 		evict->fa_tag = tag;
